@@ -10,11 +10,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,12 +43,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import dev_1.com.utils.DistanceHelper;
 import dev_1.com.utils.PostLocationToServer;
 import dev_1.com.utils.VolleySingleton;
 
-public class MapsActivity extends FragmentActivity implements LocationProvider.LocationCallback {
+public class MapsActivity2 extends FragmentActivity implements LocationProvider.LocationCallback {
 
     public static final String TAG = MapsActivity.class.getSimpleName();
 
@@ -65,6 +73,11 @@ public class MapsActivity extends FragmentActivity implements LocationProvider.L
     private MainApplication gpsApp;
 
     private String status;//TODO move this variable to MainApplication class
+
+    private PageIndicator mPageIndicator;
+
+    private String city;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,11 +116,47 @@ public class MapsActivity extends FragmentActivity implements LocationProvider.L
                 case "4":
                     drive_btn.setClickable(true);
                     break;
+                case "3":
+                    drive_btn.setClickable(false);
+                    showDialog("Info","Hi it appears you have not part of any campaign,\n Join and start earning.");
+                    break;
                 default:
                     drive_btn.setClickable(false);
                     showDialog("Info","Your account has not been activated yet, once activated you can join campaigns");
                     break;
             }
+        }
+
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.pager);
+        /** set the adapter for ViewPager */
+        mViewPager.setAdapter(new SamplePagerAdapter(
+                getSupportFragmentManager()));
+
+//        pager.setAdapter(pagerAdapter);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //TODO, hit the server to get the earnings if position is 2
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+
+        mPageIndicator = (PageIndicator) findViewById(R.id.indicator);
+        mPageIndicator.setViewPager(mViewPager);
+
+        city = gpsApp.getCity();
+        if(city==null){
+
         }
     }
 
@@ -153,7 +202,7 @@ public class MapsActivity extends FragmentActivity implements LocationProvider.L
 
                                 final String status = response.getString("status");
 
-                                AlertDialog.Builder dialog = new AlertDialog.Builder(MapsActivity.this);
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(MapsActivity2.this);
                                 dialog.setTitle("Info");
                                 dialog.setMessage(message);
                                 dialog.setPositiveButton(R.string.done, new DialogInterface.OnClickListener() {
@@ -282,7 +331,8 @@ public class MapsActivity extends FragmentActivity implements LocationProvider.L
                 distance += DistanceHelper.getDistance(startingPoint,latLng);
                 startingPoint = latLng;
             }
-            Toast.makeText(this,Float.toString(location.getSpeed()),Toast.LENGTH_SHORT).show();
+            gpsApp.showToast(Float.toString(location.getSpeed()));
+//            Toast.makeText(this,Float.toString(location.getSpeed()),Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -354,6 +404,18 @@ public class MapsActivity extends FragmentActivity implements LocationProvider.L
             Location location = (Location)intent.getParcelableExtra(LocationManager.KEY_LOCATION_CHANGED);;
             try{
                 handleNewLocation(location);
+                if (city==null){
+                    Geocoder gcd = new Geocoder(gpsApp.getBaseContext(), Locale.getDefault());
+                    List<Address> addresses = gcd.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                    if (addresses.size() > 0)
+                    {
+                        city = addresses.get(0).getLocality();
+                        gpsApp.setCity(city);
+                        gpsApp.showToast(city);
+//                        System.out.println(addresses.get(0).getLocality());
+                    }
+
+                }
 //                abortBroadcast();
             }catch (Exception e){
 
@@ -374,10 +436,33 @@ public class MapsActivity extends FragmentActivity implements LocationProvider.L
 
     private void showDialog(String message){
         Log.e(TAG, message);
-        gpsApp.showDialog("Error", message, MapsActivity.this);
+        gpsApp.showDialog("Error", message, MapsActivity2.this);
     }
     private void showDialog(String title,String message){
         Log.e(TAG, message);
-        gpsApp.showDialog(title, message, MapsActivity.this);
+        gpsApp.showDialog(title, message, MapsActivity2.this);
+    }
+
+    /** Defining a FragmentPagerAdapter class for controlling the fragments to be shown when user swipes on the screen. */
+    public class SamplePagerAdapter extends FragmentPagerAdapter {
+
+        public SamplePagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+    //fragmentRegister.textViewLanguage.setText("hello mister how do you do");
+        @Override
+        public Fragment getItem(int position) {
+            /** Show a Fragment based on the position of the current screen */
+            if (position == 0) {
+                return new SampleFragment();// blank fragment
+            } else
+                return new SampleFragmentTwo();// fragment with the earnings
+        }
+
+        @Override
+        public int getCount() {
+            // Show 2 total pages.
+            return 2;
+        }
     }
 }

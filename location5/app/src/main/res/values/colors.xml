@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#FFFFFF</color>
+    <color name="button_register">#BDBBBe</color>
+    <color name="button_login">#CDCBCB</color>
+    <color name="button_send">#ff89b94a</color>
+    <color name="button_cancel">#ffb94d2e</color>
+    <color name="start_trip">#4CAF50</color>
+
+    <color name="hint">#ffe8d90c</color>
+    <color name="edittext_background">#80ffffff</color>
+    <color name="edittext_color">#ff000000</color>
+    <color name="edittext_white_background">#33ffffff</color>
+    <color name="edittext_color_green">#ffffffff</color>
+</resources>

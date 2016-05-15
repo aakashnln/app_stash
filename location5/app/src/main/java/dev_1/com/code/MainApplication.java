@@ -1,7 +1,6 @@
 package dev_1.com.code;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 
 import dev_1.com.utils.DeviceUUIDFactory;
+import dev_1.com.utils.DialogBoxFactory;
 import dev_1.com.utils.DistanceHelper;
 import dev_1.com.utils.LocationDatabaseHelper;
 
@@ -36,6 +37,7 @@ public class MainApplication extends Application{
     public static String LOCATION_NEW_URL;
     public static String REGISTER_URL;
     public static String LOGIN_URL;
+    public static String STATUS_URL;
 
     private DeviceUUIDFactory uuidFactory;
     private String deviceId;
@@ -50,7 +52,9 @@ public class MainApplication extends Application{
 
     public LocationProvider mLocationProvider;
 
+    public Boolean DEBUG = true;
 
+    public String city;
 
     @Override
     public void onCreate() {
@@ -110,6 +114,7 @@ public class MainApplication extends Application{
         LOCATION_NEW_URL = getResources().getString(R.string.NEW_LOCATION_URL);
         REGISTER_URL = getResources().getString(R.string.REGISTER_URL);
         LOGIN_URL =  getResources().getString(R.string.LOGIN_URL);
+        STATUS_URL = getResources().getString(R.string.STATUS_URL);
     }
 
     public boolean isLoggedIn() {
@@ -117,6 +122,16 @@ public class MainApplication extends Application{
     }
 
     public String getUsername() { return username; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) {
+        Context context = getApplicationContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("city", city);
+        editor.commit();
+    }
 
     private void checkUser() {
         username = prefs.getString("username", null);
@@ -126,12 +141,9 @@ public class MainApplication extends Application{
         else {
             bLoggedIn = true;
         }
-    }
 
-//    public void showDialog(String title, String message, Activity activity){
-//        AlertDialog dialog = DialogBoxFactory.setDialog(title, message, activity);
-//        dialog.show();
-//    }
+        city = prefs.getString("city", null);
+    }
 
     public void showToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -191,7 +203,24 @@ public class MainApplication extends Application{
         return valid;
     }
 
-    public void saveLogin(String username, String email, String pin){
+
+    public void saveStatus(String status){
+
+        Context context = getApplicationContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("status", status);
+        editor.commit();
+
+//        setLoggedIn(username);
+    }
+
+    public String getStatus() {
+        return prefs.getString("status", null);
+    }
+
+    public void saveLogin(String username, String email, String phnum){
         final String uuid = getUUID();
 
         Context context = getApplicationContext();
@@ -201,7 +230,7 @@ public class MainApplication extends Application{
         editor.putString("username", username);
         editor.putString("email", email);
         editor.putString("uuid", uuid);
-        editor.putString("pin", pin);
+        editor.putString("phnum", phnum);
         editor.commit();
 
         setLoggedIn(username);
@@ -215,6 +244,11 @@ public class MainApplication extends Application{
             networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         }
         return networkInfo == null ? false : networkInfo.isConnected();
+    }
+
+    public void showDialog(String title, String message, Activity activity){
+        AlertDialog dialog = DialogBoxFactory.setDialog(title, message, activity);
+        dialog.show();
     }
 
     private void exportDB(){

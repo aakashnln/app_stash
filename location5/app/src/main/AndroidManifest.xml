@@ -33,7 +33,7 @@
         </service>
 
         <activity
-            android:name="dev_1.com.code.MapsActivity"
+            android:name="dev_1.com.code.RegisterActivity"
             android:label="@string/title_activity_maps" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,6 +44,8 @@
                 <action android:name="dev_1.com.ACTION_LOCATION"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".LoginActivity"/>
     </application>
 
 </manifest>

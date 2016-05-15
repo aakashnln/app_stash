@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">I Am Here</string>
+    <string name="app_name">DriveUrAd</string>
     <string name="title_activity_maps">Map</string>
     <string name="invalid_username">Please specify a valid username with a minimum of 6 characters.</string>
     <string name="invalid_email">Please specify a valid email.</string>
     <string name="invalid_password">Please specify a valid password with at least 8 characters.</string>
+    <string name="invalid_phnum">Please enter 10 Digits phone number without (+91)</string>
+    <string name="password_mismatch">Passwords did not match and it should be at least 8 characters.</string>
+
+    <string name="tag_line">Earn just on every ride.</string>
+    <string name="start_trip">START TRIP</string>
+    <string name="stop_trip">STOP TRIP</string>
+    <string name="done">Done</string>
 
 </resources>
